@@ -15,48 +15,6 @@ struct ContentView: View {
 
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-    // Battery level computed property
-    private var batteryLevel: Float {
-        #if canImport(UIKit)
-            UIDevice.current.isBatteryMonitoringEnabled = true
-            return UIDevice.current.batteryLevel
-        #else
-            return 1.0
-        #endif
-    }
-
-    private var batteryPercentage: Int {
-        return Int(batteryLevel * 100)
-    }
-
-    private var batteryIcon: String {
-        switch batteryPercentage {
-        case 81...100:
-            return "battery.100"
-        case 61...80:
-            return "battery.75"
-        case 41...60:
-            return "battery.50"
-        case 21...40:
-            return "battery.25"
-        case 1...20:
-            return "battery.0"
-        default:
-            return "battery.0"
-        }
-    }
-
-    private var batteryColor: Color {
-        switch batteryPercentage {
-        case 21...100:
-            return .green
-        case 11...20:
-            return .orange
-        default:
-            return .red
-        }
-    }
-
     var body: some View {
         ZStack {
             // Background color from theme
@@ -67,7 +25,9 @@ struct ContentView: View {
             if settings.showDate {
                 GeometryReader { geometry in
                     VStack {
+                        Spacer()
                         HStack {
+                            Spacer()
                             Text(dateString)
                                 .font(
                                     .custom(
@@ -80,10 +40,7 @@ struct ContentView: View {
                                 .contentTransition(.numericText())
                             Spacer()
                         }
-                        .padding(.top, 20)
-                        .padding(.leading, 20)
                         .brightness(settings.brightness - 0.5)
-                        Spacer()
                     }
                 }
             }
@@ -128,25 +85,10 @@ struct ContentView: View {
 
             if showMenuOption {
                 VStack {
+
                     HStack {
-                        // Battery display on the left
-                        if settings.showBatteryLevel {
-                            ZStack {
-                                Image(systemName: batteryIcon)
-                                    .font(.title)
-                                    .foregroundColor(batteryColor)
+                        Spacer()  // Pushes menu button to right
 
-                                Text("\(batteryPercentage)")
-                                    .font(.system(size: 10, weight: .bold))
-                                    .foregroundColor(settings.textColor)
-                                    .contentTransition(.numericText())
-                            }
-                            .padding(.leading, 20)
-                        }
-
-                        Spacer()
-
-                        // Menu button on the right
                         Button(action: {
                             withAnimation(.easeIn(duration: 0.15)) {
                                 showMenuView.toggle()
@@ -168,7 +110,8 @@ struct ContentView: View {
                     .padding(.top, 20)
                     .brightness(settings.brightness - 0.5)
 
-                    Spacer()
+                    Spacer()  // Pushes everything to top
+
                 }
             }
 
@@ -218,7 +161,7 @@ struct ContentView: View {
     private var dateString: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "dd/MM/yyyy"
+        formatter.dateFormat = "d MMM, yyyy EE"
         return formatter.string(from: currentTime)
     }
 }

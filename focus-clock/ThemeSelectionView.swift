@@ -17,7 +17,7 @@ struct ThemeSelectionView: View {
   var body: some View {
     List {
       // Preview Section
-      Section("Preview") {
+      Section {
         ZStack {
           RoundedRectangle(cornerRadius: 12)
             .fill(settings.backgroundColor)
@@ -31,18 +31,11 @@ struct ThemeSelectionView: View {
             Text("12:34")
               .font(.custom(settings.fontFamily, size: 32 * settings.fontSize))
               .foregroundColor(settings.textColor)
-
-            Text(
-              "Font: \(settings.fontFamily) | Size: \(Int(settings.fontSize * 100))%"
-            )
-            .font(.caption)
-            .foregroundColor(settings.textColor.opacity(0.7))
           }
         }
         .listRowBackground(Color.clear)
         .listRowInsets(EdgeInsets())
         .padding(.horizontal)
-        .brightness(settings.brightness - 0.5)  // Apply same brightness as main view
       }
 
       // Typography Section

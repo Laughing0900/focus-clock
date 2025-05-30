@@ -111,7 +111,6 @@ struct FontSelectionView: View {
         .listRowBackground(Color.clear)
         .listRowInsets(EdgeInsets())
         .padding(.horizontal)
-        .brightness(settings.brightness - 0.5)
       }
 
       // Font List Section

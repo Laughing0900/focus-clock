@@ -119,15 +119,15 @@ struct SettingsView: View {
               .labelsHidden()
           }
 
-          HStack {
-            Image(systemName: "battery.100")
-              .foregroundColor(.green)
-              .frame(width: 25)
-            Text("Show Battery Level")
-            Spacer()
-            Toggle("", isOn: $settings.showBatteryLevel)
-              .labelsHidden()
-          }
+          // HStack {
+          //   Image(systemName: "battery.100")
+          //     .foregroundColor(.green)
+          //     .frame(width: 25)
+          //   Text("Show Battery Level")
+          //   Spacer()
+          //   Toggle("", isOn: $settings.showBatteryLevel)
+          //     .labelsHidden()
+          // }
         }
 
       }
