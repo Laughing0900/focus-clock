@@ -60,8 +60,8 @@
 - [x] Change time display format (HH:MM:SS or HH:MM)
 
 ### 3.2 Settings & Preferences
-- [ ] Screen always on 
-- [ ] Show battery
+- [x] Screen always on 
+- [x] Show battery
 
 
 ## 🔧 Technical Implementation
