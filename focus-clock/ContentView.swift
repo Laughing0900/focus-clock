@@ -70,11 +70,11 @@ struct ContentView: View {
                         HStack {
                             Text(dateString)
                                 .font(
-                                    .system(
+                                    .custom(
+                                        settings.fontFamily,
                                         size: max(
-                                            12, geometry.size.width * 0.03 * settings.fontSize),
-                                        weight: .medium,
-                                        design: settings.getFontDesign())
+                                            12, geometry.size.width * 0.03 * settings.fontSize)
+                                    )
                                 )
                                 .foregroundColor(settings.textColor)
                             Spacer()
@@ -94,10 +94,10 @@ struct ContentView: View {
                         if !settings.timeFormat24Hour {
                             Text(amPmString)
                                 .font(
-                                    .system(
-                                        size: geometry.size.width * 0.05 * settings.fontSize,
-                                        weight: .medium,
-                                        design: settings.getFontDesign())
+                                    .custom(
+                                        settings.fontFamily,
+                                        size: geometry.size.width * 0.05 * settings.fontSize
+                                    )
                                 )
                                 .foregroundColor(settings.textColor)
                         }
@@ -105,10 +105,10 @@ struct ContentView: View {
                         // Main time display
                         Text(timeString)
                             .font(
-                                .system(
-                                    size: geometry.size.width * 0.20 * settings.fontSize,
-                                    weight: .light,
-                                    design: settings.getFontDesign())
+                                .custom(
+                                    settings.fontFamily,
+                                    size: geometry.size.width * 0.20 * settings.fontSize
+                                )
                             )
                             .foregroundColor(settings.textColor)
                     }

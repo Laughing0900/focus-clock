@@ -14,13 +14,6 @@ struct ThemeSelectionView: View {
     "Default", "Light", "Dark Blue", "Forest", "Sunset", "Purple Dream", "Custom",
   ]
 
-  let fontFamilies = [
-    "Default",
-    "Rounded",
-    "Monospaced",
-    "Serif",
-  ]
-
   @State private var selectedBackgroundColorName = "Black"
   @State private var selectedTextColorName = "White"
   @State private var selectedAccentColorName = "Blue"
@@ -85,12 +78,7 @@ struct ThemeSelectionView: View {
 
           VStack(spacing: 8) {
             Text("12:34")
-              .font(
-                .system(
-                  size: 32 * settings.fontSize,
-                  weight: .light,
-                  design: settings.getFontDesign())
-              )
+              .font(.custom(settings.fontFamily, size: 32 * settings.fontSize))
               .foregroundColor(settings.textColor)
 
             Text(
@@ -152,23 +140,17 @@ struct ThemeSelectionView: View {
       Section("Typography") {
         // Font Family Selection
         HStack {
-          Image(systemName: "textformat")
-            .foregroundColor(.blue)
-            .frame(width: 25)
-          Spacer()
-          Picker("Font Family", selection: $settings.fontFamily) {
-            ForEach(fontFamilies, id: \.self) { family in
-              HStack {
-                Text("\(family)")
-                  .font(
-                    .system(
-                      size: 16, weight: .medium,
-                      design: getFontDesignForFamily(family)))
-              }
-              .tag(family)
+          NavigationLink(destination: FontSelectionView(settings: settings)) {
+            HStack {
+              Image(systemName: "textformat")
+                .foregroundColor(.blue)
+                .frame(width: 25)
+              Text("Font Family")
+              Spacer()
+              Text(settings.fontFamily)
+                .foregroundColor(.secondary)
             }
           }
-          .pickerStyle(.menu)
         }
 
         // Font Size Slider
@@ -361,7 +343,7 @@ struct ThemeSelectionView: View {
             settings.updateThemeColors()
 
             // Reset typography
-            settings.fontFamily = "Default"
+            settings.fontFamily = "Helvetica Neue"
             settings.fontSize = 1.0
 
             // Reset color selections
@@ -399,16 +381,6 @@ struct ThemeSelectionView: View {
     case "Purple Dream": return Color.purple
     case "Custom": return settings.textColor
     default: return Color.white
-    }
-  }
-
-  private func getFontDesignForFamily(_ family: String) -> Font.Design {
-    switch family {
-    case "Default": return .default
-    case "Rounded": return .rounded
-    case "Monospaced": return .monospaced
-    case "Serif": return .serif
-    default: return .default
     }
   }
 }

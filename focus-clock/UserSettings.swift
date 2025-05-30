@@ -27,7 +27,7 @@ class UserSettings: ObservableObject {
   @Published var accentColor = Color.blue
 
   // Typography properties
-  @Published var fontFamily = "Default"
+  @Published var fontFamily = "Helvetica Neue"
   @Published var fontSize: Double = 1.0  // Multiplier for base font size
 
   init() {
@@ -80,16 +80,6 @@ class UserSettings: ObservableObject {
       backgroundColor = Color.black
       textColor = Color.white
       accentColor = Color.blue
-    }
-  }
-
-  func getFontDesign() -> Font.Design {
-    switch fontFamily {
-    case "Default": return .default
-    case "Rounded": return .rounded
-    case "Monospaced": return .monospaced
-    case "Serif": return .serif
-    default: return .default
     }
   }
 }
