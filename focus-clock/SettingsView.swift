@@ -31,7 +31,7 @@ struct MenuRow: View {
 }
 
 struct SettingsView: View {
-  @Environment(\.dismiss) private usevardismiss
+  @Environment(\.dismiss) private var dismiss
   @ObservedObject var settings: UserSettings
 
   var body: some View {
