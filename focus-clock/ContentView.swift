@@ -21,30 +21,6 @@ struct ContentView: View {
             settings.backgroundColor
                 .ignoresSafeArea()
 
-            // Date display in top left corner
-            if settings.showDate {
-                GeometryReader { geometry in
-                    VStack {
-                        Spacer()
-                        HStack {
-                            Spacer()
-                            Text(dateString)
-                                .font(
-                                    .custom(
-                                        settings.fontFamily,
-                                        size: max(
-                                            12, geometry.size.width * 0.03 * settings.fontSize)
-                                    )
-                                )
-                                .foregroundColor(settings.textColor)
-                                .contentTransition(.numericText())
-                            Spacer()
-                        }
-                        .brightness(settings.brightness - 0.5)
-                    }
-                }
-            }
-
             VStack {
                 GeometryReader { geometry in
                     VStack(alignment: .leading, spacing: -20) {
@@ -78,9 +54,29 @@ struct ContentView: View {
                     .brightness(settings.brightness - 0.5)
                 }
             }
-            .padding()
-            .onReceive(timer) { input in
-                currentTime = input
+
+            // Date display in top left corner
+            if settings.showDate {
+                GeometryReader { geometry in
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Text(dateString)
+                                .font(
+                                    .custom(
+                                        settings.fontFamily,
+                                        size: max(
+                                            12, geometry.size.width * 0.03 * settings.fontSize)
+                                    )
+                                )
+                                .foregroundColor(settings.textColor)
+                                .contentTransition(.numericText())
+                            Spacer()
+                        }
+                        .brightness(settings.brightness - 0.5)
+                    }
+                }
             }
 
             if showMenuOption {
@@ -128,6 +124,13 @@ struct ContentView: View {
         .sheet(isPresented: $showMenuView) {
             SettingsView(settings: settings)
         }
+        .onReceive(timer) { input in
+            withAnimation {
+                currentTime = input
+            }
+
+        }
+
     }
 
     private var timeString: String {

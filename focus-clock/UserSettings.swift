@@ -10,8 +10,8 @@ import SwiftUI
 // UserSettings class for shared state management
 class UserSettings: ObservableObject {
   @Published var timeFormat24Hour = true
-  @Published var showSeconds = false
-  @Published var showDate = false
+  @Published var showSeconds = true
+  @Published var showDate = true
   @Published var brightness: Double = 0.8
   @Published var keepScreenOn = true {
     didSet {

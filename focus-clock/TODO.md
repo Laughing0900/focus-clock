@@ -78,10 +78,9 @@
 ## 📦 Deployment & Distribution
 
 ### 6.1 App Store Preparation
-- [ ] App icons (all required sizes)
+- [x] App icons (all required sizes)
 - [ ] Screenshots for App Store
 - [ ] App description and keywords
-- [ ] Privacy policy (if needed)
 - [ ] App Store metadata
 
 ### 6.2 Release
