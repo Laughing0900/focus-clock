@@ -104,6 +104,7 @@ struct FontSelectionView: View {
             Text("12:34:56")
               .font(.custom(settings.fontFamily, size: 32 * settings.fontSize))
               .foregroundColor(settings.textColor)
+              .contentTransition(.numericText())
 
           }
         }
@@ -130,7 +131,7 @@ struct FontSelectionView: View {
 
             if settings.fontFamily == fontFamily {
               Image(systemName: "checkmark")
-                .foregroundColor(settings.accentColor)
+                .foregroundColor(.blue)
             }
           }
           .contentShape(Rectangle())

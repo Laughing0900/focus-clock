@@ -9,7 +9,7 @@ import SwiftUI
 
 // UserSettings class for shared state management
 class UserSettings: ObservableObject {
-  @Published var timeFormat24Hour = false
+  @Published var timeFormat24Hour = true
   @Published var showSeconds = false
   @Published var showDate = false
   @Published var brightness: Double = 0.8

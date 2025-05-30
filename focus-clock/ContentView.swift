@@ -77,6 +77,7 @@ struct ContentView: View {
                                     )
                                 )
                                 .foregroundColor(settings.textColor)
+                                .contentTransition(.numericText())
                             Spacer()
                         }
                         .padding(.top, 20)
@@ -111,6 +112,7 @@ struct ContentView: View {
                                 )
                             )
                             .foregroundColor(settings.textColor)
+                            .contentTransition(.numericText())
                     }
                     .frame(
                         width: geometry.size.width, height: geometry.size.height,
@@ -137,6 +139,7 @@ struct ContentView: View {
                                 Text("\(batteryPercentage)")
                                     .font(.system(size: 10, weight: .bold))
                                     .foregroundColor(settings.textColor)
+                                    .contentTransition(.numericText())
                             }
                             .padding(.leading, 20)
                         }

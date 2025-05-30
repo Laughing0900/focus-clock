@@ -96,13 +96,6 @@ struct SettingsView: View {
               Image(systemName: "sun.max")
                 .foregroundColor(.orange)
                 .frame(width: 25)
-              Text("Brightness")
-              Spacer()
-              Text("\(Int(settings.brightness * 100))%")
-                .foregroundColor(.secondary)
-            }
-
-            HStack {
               Image(systemName: "sun.min")
                 .font(.caption)
 
