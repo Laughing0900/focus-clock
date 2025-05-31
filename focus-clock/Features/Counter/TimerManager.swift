@@ -31,7 +31,7 @@ class TimerManager: ObservableObject {
   // MARK: - Timer Controls
 
   func startTimer() {
-    guard state == .idle else { return }
+    guard state == .idle || state == .completed else { return }
     startCountdown()
   }
 
@@ -127,7 +127,7 @@ class TimerManager: ObservableObject {
   }
 
   var canStart: Bool {
-    state == .idle
+    state == .idle || state == .completed
   }
 
   var canPause: Bool {
