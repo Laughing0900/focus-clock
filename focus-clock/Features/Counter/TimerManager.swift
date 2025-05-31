@@ -76,7 +76,9 @@ class TimerManager: ObservableObject {
       guard let self = self else { return }
 
       if self.timeRemaining > 0 {
-        self.timeRemaining -= 1
+        withAnimation {
+          self.timeRemaining -= 1
+        }
       } else {
         self.timerCompleted()
       }

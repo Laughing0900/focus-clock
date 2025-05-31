@@ -21,7 +21,7 @@ struct ContentView: View {
                 .ignoresSafeArea()
 
             // Timer counter
-            CounterView()
+            CounterView(showMenuOption: $showMenuOption, settings: settings)
             // Main Clock
             ClockView(settings: settings)
 

@@ -2,16 +2,18 @@ import SwiftUI
 import UIKit
 
 struct VerticalRuler: View {
+  @Binding var showMenuOption: Bool
+  @ObservedObject var settings: UserSettings
+
   let maxTick: CGFloat = 60
   let majorTickInterval: CGFloat = 5  // 5 minutes
   let minorTickInterval: CGFloat = 1  // 1 minute
-
-  @StateObject private var settings = UserSettings()
   @StateObject private var timerManager = TimerManager()
 
   @State private var scrollOffset: CGFloat = 0
   @State private var lastScrollOffset: CGFloat = 0
   @State private var isDragging: Bool = false
+  @State private var isLongPressing: Bool = false
 
   let tickSpacing: CGFloat = 12
 
@@ -26,98 +28,118 @@ struct VerticalRuler: View {
   var body: some View {
     GeometryReader { geometry in
       ZStack {
-        VStack {
-          Spacer()
-          HStack {
+        if showMenuOption || timerManager.state == .running {
+          VStack {
             Spacer()
-
-            Button {
-              if timerManager.canStart {
-                timerManager.startTimer()
-              } else if timerManager.isRunning {
-                timerManager.pauseTimer()
-              } else if timerManager.isPaused {
-                timerManager.resumeTimer()
-              }
-            } label: {
-              Image(systemName: timerManager.isRunning ? "pause.circle" : "play.circle")
-                .font(.system(size: 32))
-                .foregroundColor(settings.textColor)
-
-            }
-
-            Text(
-              timerManager.formattedTimeRemaining
-            )
-            .font(.title2)
-            .foregroundColor(settings.textColor)
-
-            Button {
-              // Reset ruler to 10 minutes
-              timerManager.resetTimer(10 * 60)
-              resetRulerToValue(targetValue: 10, geometry: geometry)
-            } label: {
-              Image(systemName: "stop.circle")
-                .font(.system(size: 32))
-                .foregroundColor(settings.textColor)
-
-            }
-
-          }
-
-        }
-
-        HStack(spacing: 0) {
-          Spacer()
-          ZStack {
             HStack {
-              Canvas { context, size in
-                drawRulerMarks(context: context, totalHeight: size.height)
-                drawLabels(context: context, totalHeight: size.height)
-              }
-              .frame(width: 60, height: maxTick * valuePerPoint + topPadding + bottomPadding)
-              .offset(y: scrollOffset)
-              .gesture(
-                DragGesture()
-                  .onChanged { value in
-                    if timerManager.isRunning {
-                      return
-                    }
+              Spacer()
 
-                    // Allow manual scrolling when timer is not running OR when paused
-                    isDragging = true
-                    scrollOffset = lastScrollOffset + value.translation.height
-
-                    // Calculate the value directly for time remaining update
-                    let arrowPosition = geometry.size.height / 2
-                    let rulerPositionAtArrow =
-                      arrowPosition - scrollOffset - topPadding - bottomPadding
-                    let valueAtArrow = max(0, min(maxTick, rulerPositionAtArrow / valuePerPoint))
-
-                    let newTimeInSeconds = valueAtArrow * 60
-                    timerManager.updateTimeRemaining(newTimeInSeconds)
-                  }
-                  .onEnded { value in
-                    isDragging = false
-                    lastScrollOffset = scrollOffset
-
-                  }
+              Image(
+                systemName: isLongPressing
+                  ? "stop.circle.fill"
+                  : (timerManager.isRunning ? "pause.circle" : "play.circle")
               )
+              .font(.system(size: 32))
+              .foregroundColor(settings.textColor)
+              .onTapGesture {
+                // Handle tap - play/pause functionality
+                if timerManager.canStart {
+                  timerManager.startTimer()
+                } else if timerManager.isRunning {
+                  timerManager.pauseTimer()
+                } else if timerManager.isPaused {
+                  timerManager.resumeTimer()
+                }
+              }
+              .onLongPressGesture(minimumDuration: 1.0, maximumDistance: 50) {
+                // Handle long press - reset functionality
+                timerManager.resetTimer(10 * 60)
+                resetRulerToValue(targetValue: 10, geometry: geometry)
+                isLongPressing = false
+              } onPressingChanged: { pressing in
+                // Track long press state to change icon
+                withAnimation(.easeInOut(duration: 0.2)) {
+                  isLongPressing = pressing
+                }
+              }
 
-              Image(systemName: "arrowtriangle.left.fill")
-                .foregroundColor(.white)
-                .font(.caption2)
-                .opacity(0.8)
-                .offset(y: -valuePerPoint - topPadding - bottomPadding)
+              Text(
+                timerManager.formattedTimeRemaining
+              )
+              .foregroundColor(settings.textColor)
+              .font(
+                .custom(
+                  settings.fontFamily,
+                  size: 24
+                )
+              )
+              .contentTransition(.numericText())
 
             }
+            .padding(20)
+
           }
-          .frame(height: geometry.size.height * 0.8)
-          .clipped()
-
         }
+        if showMenuOption || timerManager.state == .running {
+          HStack(spacing: 0) {
+            Spacer()
+            ZStack {
+              HStack {
+                Canvas { context, size in
+                  drawRulerMarks(context: context, totalHeight: size.height)
+                  drawLabels(context: context, totalHeight: size.height)
+                }
+                .frame(width: 60, height: maxTick * valuePerPoint + topPadding + bottomPadding)
+                .offset(y: scrollOffset)
+                .gesture(
+                  DragGesture()
+                    .onChanged { value in
+                      if timerManager.isRunning {
+                        return
+                      }
 
+                      // Calculate potential new scroll position
+                      let potentialScrollOffset = lastScrollOffset + value.translation.height
+
+                      // Calculate what the value would be at the arrow position
+                      let arrowPosition = geometry.size.height / 2
+                      let rulerPositionAtArrow = arrowPosition - potentialScrollOffset - topPadding
+                      let potentialValue = rulerPositionAtArrow / valuePerPoint
+
+                      // Clamp the value to valid range and calculate corresponding scroll offset
+                      let clampedValue = max(0, min(maxTick, potentialValue))
+                      let clampedRulerPosition = clampedValue * valuePerPoint + topPadding
+                      let clampedScrollOffset = arrowPosition - clampedRulerPosition
+
+                      // Allow manual scrolling when timer is not running OR when paused
+                      isDragging = true
+                      scrollOffset = clampedScrollOffset
+
+                      // Update time remaining
+                      let newTimeInSeconds = clampedValue * 60
+                      timerManager.updateTimeRemaining(newTimeInSeconds)
+                    }
+                    .onEnded { value in
+                      isDragging = false
+                      lastScrollOffset = scrollOffset
+                    }
+                )
+
+                Image(systemName: "arrowtriangle.left.fill")
+                  .foregroundColor(.white)
+                  .font(.caption2)
+                  .opacity(0.8)
+                  .offset(y: -valuePerPoint - topPadding - bottomPadding)
+
+              }
+            }
+            .frame(height: geometry.size.height * 0.8)
+            .clipped()
+
+          }
+        }
       }
+      .brightness(settings.brightness - 0.5)
       .onAppear {
         // Initialize to start at 10 minutes
         let targetValue: CGFloat = 10
@@ -181,8 +203,6 @@ struct VerticalRuler: View {
       context.stroke(tickPath, with: .color(settings.textColor), lineWidth: 1.5)
     }
   }
-
-  // MARK: - Helper Methods
 
   private func animateRulerToValue(targetValue: CGFloat, geometry: GeometryProxy) {
     let targetYPosition = targetValue * valuePerPoint + topPadding
