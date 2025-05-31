@@ -12,13 +12,17 @@ struct ContentView: View {
     @State private var showMenuView = false
     @StateObject private var settings = UserSettings()
 
+    @State private var selectedHeight: CGFloat = 200
+
     var body: some View {
         ZStack {
             // Background color from theme
             settings.backgroundColor
                 .ignoresSafeArea()
 
-            // Clock display
+            // Timer counter
+            CounterView()
+            // Main Clock
             ClockView(settings: settings)
 
             // Menu button overlay
@@ -32,14 +36,10 @@ struct ContentView: View {
                                 showMenuView.toggle()
                             }
                         }) {
-                            Image(systemName: "list.dash")
-                                .font(.title2)
+                            Image(systemName: "ellipsis.circle")
+                                .font(.system(size: 32))
                                 .foregroundColor(settings.textColor)
-                                .padding(10)
-                                .overlay(
-                                    Circle()
-                                        .stroke(settings.textColor, lineWidth: 1)
-                                )
+
                         }
                         .buttonStyle(.plain)
                         .transition(.scale.combined(with: .opacity))
