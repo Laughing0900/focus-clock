@@ -7,29 +7,6 @@
 
 import SwiftUI
 
-struct MenuRow: View {
-  let icon: String
-  let title: String
-
-  var body: some View {
-    HStack {
-      Image(systemName: icon)
-        .foregroundColor(.blue)
-        .frame(width: 20)
-      Text(title)
-        .foregroundColor(.primary)
-      Spacer()
-      Image(systemName: "chevron.right")
-        .foregroundColor(.gray)
-        .font(.caption)
-    }
-    .padding(.horizontal)
-    .padding(.vertical, 8)
-    .background(Color.gray.opacity(0.1))
-    .cornerRadius(8)
-  }
-}
-
 struct SettingsView: View {
   @Environment(\.dismiss) private var dismiss
   @ObservedObject var settings: UserSettings
@@ -43,12 +20,7 @@ struct SettingsView: View {
             Image(systemName: "clock")
               .foregroundColor(.blue)
               .frame(width: 25)
-            VStack(alignment: .leading) {
-              Text("Time Format")
-              Text(settings.timeFormat24Hour ? "24-Hour" : "12-Hour")
-                .font(.caption)
-                .foregroundColor(.secondary)
-            }
+            Text("12/24 Hour")
             Spacer()
             Toggle("", isOn: $settings.timeFormat24Hour)
               .labelsHidden()
@@ -119,19 +91,9 @@ struct SettingsView: View {
               .labelsHidden()
           }
 
-          // HStack {
-          //   Image(systemName: "battery.100")
-          //     .foregroundColor(.green)
-          //     .frame(width: 25)
-          //   Text("Show Battery Level")
-          //   Spacer()
-          //   Toggle("", isOn: $settings.showBatteryLevel)
-          //     .labelsHidden()
-          // }
         }
 
       }
-      .navigationTitle("Settings")
       .toolbar {
         ToolbarItem(placement: .primaryAction) {
           Button("Done") {
