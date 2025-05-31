@@ -15,14 +15,16 @@ struct VerticalRuler: View {
   @State private var isDragging: Bool = false
   @State private var isLongPressing: Bool = false
 
-  let tickSpacing: CGFloat = 12
-
   // Add padding to prevent text clipping
   private let topPadding: CGFloat = 5
   private let bottomPadding: CGFloat = 5
 
-  private var valuePerPoint: CGFloat {
-    minorTickInterval * tickSpacing
+  // Make valuePerPoint dynamic based on screen height
+  private func valuePerPoint(for geometry: GeometryProxy) -> CGFloat {
+    // Calculate tick spacing based on available height
+    let availableHeight = geometry.size.height * 0.8 - topPadding - bottomPadding
+    let idealTickSpacing = availableHeight / (maxTick * 0.8)  // Use 80% of max height for better spacing
+    return max(8, min(20, idealTickSpacing))  // Clamp between reasonable values
   }
 
   var body: some View {
@@ -84,58 +86,64 @@ struct VerticalRuler: View {
           HStack(spacing: 0) {
             Spacer()
             ZStack {
+              // Ruler Canvas - this moves with scrollOffset
+              Canvas { context, size in
+                drawRulerMarks(context: context, totalHeight: size.height, geometry: geometry)
+                drawLabels(context: context, totalHeight: size.height, geometry: geometry)
+              }
+              .frame(
+                width: 60,
+                height: maxTick * valuePerPoint(for: geometry) + topPadding + bottomPadding
+              )
+              .offset(y: scrollOffset)
+              .gesture(
+                DragGesture()
+                  .onChanged { value in
+                    if timerManager.isRunning {
+                      return
+                    }
+
+                    // Calculate potential new scroll position
+                    let potentialScrollOffset = lastScrollOffset + value.translation.height
+
+                    // Calculate what the value would be at the arrow position
+                    let arrowPosition = geometry.size.height / 2
+                    let rulerPositionAtArrow = arrowPosition - potentialScrollOffset - topPadding
+                    let potentialValue = rulerPositionAtArrow / valuePerPoint(for: geometry)
+
+                    // Clamp the value to valid range and calculate corresponding scroll offset
+                    let clampedValue = max(0, min(maxTick, potentialValue))
+                    let clampedRulerPosition =
+                      clampedValue * valuePerPoint(for: geometry) + topPadding
+                    let clampedScrollOffset = arrowPosition - clampedRulerPosition
+
+                    // Allow manual scrolling when timer is not running OR when paused
+                    isDragging = true
+                    scrollOffset = clampedScrollOffset
+
+                    // Update time remaining
+                    let newTimeInSeconds = clampedValue * 60
+                    timerManager.updateTimeRemaining(newTimeInSeconds)
+                  }
+                  .onEnded { value in
+                    isDragging = false
+                    lastScrollOffset = scrollOffset
+                  }
+              )
+
+              // Arrow - this stays fixed at center
               HStack {
-                Canvas { context, size in
-                  drawRulerMarks(context: context, totalHeight: size.height)
-                  drawLabels(context: context, totalHeight: size.height)
-                }
-                .frame(width: 60, height: maxTick * valuePerPoint + topPadding + bottomPadding)
-                .offset(y: scrollOffset)
-                .gesture(
-                  DragGesture()
-                    .onChanged { value in
-                      if timerManager.isRunning {
-                        return
-                      }
-
-                      // Calculate potential new scroll position
-                      let potentialScrollOffset = lastScrollOffset + value.translation.height
-
-                      // Calculate what the value would be at the arrow position
-                      let arrowPosition = geometry.size.height / 2
-                      let rulerPositionAtArrow = arrowPosition - potentialScrollOffset - topPadding
-                      let potentialValue = rulerPositionAtArrow / valuePerPoint
-
-                      // Clamp the value to valid range and calculate corresponding scroll offset
-                      let clampedValue = max(0, min(maxTick, potentialValue))
-                      let clampedRulerPosition = clampedValue * valuePerPoint + topPadding
-                      let clampedScrollOffset = arrowPosition - clampedRulerPosition
-
-                      // Allow manual scrolling when timer is not running OR when paused
-                      isDragging = true
-                      scrollOffset = clampedScrollOffset
-
-                      // Update time remaining
-                      let newTimeInSeconds = clampedValue * 60
-                      timerManager.updateTimeRemaining(newTimeInSeconds)
-                    }
-                    .onEnded { value in
-                      isDragging = false
-                      lastScrollOffset = scrollOffset
-                    }
-                )
-
+                Spacer()
                 Image(systemName: "arrowtriangle.left.fill")
-                  .foregroundColor(.white)
+                  .foregroundColor(settings.textColor)
                   .font(.caption2)
                   .opacity(0.8)
-                  .offset(y: -valuePerPoint - topPadding - bottomPadding)
-
               }
+              .frame(width: 60)
+              .allowsHitTesting(false)  // Prevent arrow from interfering with drag gestures
             }
             .frame(height: geometry.size.height * 0.8)
             .clipped()
-
           }
         }
       }
@@ -143,7 +151,8 @@ struct VerticalRuler: View {
       .onAppear {
         // Initialize to start at 10 minutes
         let targetValue: CGFloat = 10
-        let targetYPosition = targetValue * valuePerPoint + topPadding + bottomPadding
+        let targetYPosition =
+          targetValue * valuePerPoint(for: geometry) + topPadding + bottomPadding
 
         // The arrow should be at the center of the screen
         let arrowPosition = geometry.size.height / 2
@@ -163,10 +172,10 @@ struct VerticalRuler: View {
     }
   }
 
-  private func drawLabels(context: GraphicsContext, totalHeight: CGFloat) {
+  private func drawLabels(context: GraphicsContext, totalHeight: CGFloat, geometry: GeometryProxy) {
     for index in 0...Int(maxTick / majorTickInterval) {
       let value = CGFloat(index) * majorTickInterval
-      let yPosition = value * valuePerPoint + topPadding
+      let yPosition = value * valuePerPoint(for: geometry) + topPadding
 
       if value <= maxTick {
         let text = Text("\(Int(value))")
@@ -178,11 +187,12 @@ struct VerticalRuler: View {
     }
   }
 
-  private func drawRulerMarks(context: GraphicsContext, totalHeight: CGFloat) {
+  private func drawRulerMarks(
+    context: GraphicsContext, totalHeight: CGFloat, geometry: GeometryProxy
+  ) {
     // Draw minor ticks (1 minute intervals)
-
     for minute in stride(from: 0, through: maxTick, by: minorTickInterval) {
-      let yPosition = minute * valuePerPoint + topPadding
+      let yPosition = minute * valuePerPoint(for: geometry) + topPadding
 
       if minute.truncatingRemainder(dividingBy: majorTickInterval) != 0 {
         let tickPath = Path { path in
@@ -195,7 +205,7 @@ struct VerticalRuler: View {
 
     // Draw major ticks (5 minute intervals)
     for minute in stride(from: 0, through: maxTick, by: majorTickInterval) {
-      let yPosition = minute * valuePerPoint + topPadding
+      let yPosition = minute * valuePerPoint(for: geometry) + topPadding
       let tickPath = Path { path in
         path.move(to: CGPoint(x: 30, y: yPosition))
         path.addLine(to: CGPoint(x: 60, y: yPosition))
@@ -205,7 +215,7 @@ struct VerticalRuler: View {
   }
 
   private func animateRulerToValue(targetValue: CGFloat, geometry: GeometryProxy) {
-    let targetYPosition = targetValue * valuePerPoint + topPadding
+    let targetYPosition = targetValue * valuePerPoint(for: geometry) + topPadding
     let arrowPosition = geometry.size.height / 2
     let newScrollOffset = arrowPosition - targetYPosition
 
@@ -216,7 +226,7 @@ struct VerticalRuler: View {
   }
 
   private func resetRulerToValue(targetValue: CGFloat, geometry: GeometryProxy) {
-    let targetYPosition = targetValue * valuePerPoint + topPadding
+    let targetYPosition = targetValue * valuePerPoint(for: geometry) + topPadding
     let arrowPosition = geometry.size.height / 2
 
     withAnimation(.easeInOut(duration: 0.3)) {
