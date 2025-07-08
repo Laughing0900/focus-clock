@@ -20,10 +20,11 @@ struct ContentView: View {
             settings.backgroundColor
                 .ignoresSafeArea()
 
-            // Timer counter
-            CounterView(showMenuOption: $showMenuOption, settings: settings)
-            // Main Clock
-            ClockView(settings: settings)
+//            // Timer counter
+//            CounterView(showMenuOption: $showMenuOption, settings: settings)
+//            // Main Clock
+//            ClockView(settings: settings)
+            SliderView()
 
             // Menu button overlay
             if showMenuOption {

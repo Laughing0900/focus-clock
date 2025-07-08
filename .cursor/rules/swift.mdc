@@ -24,3 +24,4 @@ alwaysApply: true
   - If you think there might not be a correct answer, you say so. If you do not know the answer, say so instead of guessing.
   - always use context 7 swift UI and swift to create new UI and logics
   - no need to  build and test in cli after every changes
+  - ignore all "Cannot find 'xxx' in scope" lint error
