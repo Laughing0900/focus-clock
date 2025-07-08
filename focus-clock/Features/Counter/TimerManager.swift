@@ -57,9 +57,11 @@ class TimerManager: ObservableObject {
 
   func resetTimer(_ newTime: TimeInterval) {
     stopCountdown()
-    timeRemaining = newTime
-    progress = 0
-    state = .idle
+    withAnimation(.interactiveSpring()) {
+      timeRemaining = newTime
+      progress = 0
+      state = .idle
+    }
   }
 
   func updateTimeRemaining(_ newTime: TimeInterval) {
