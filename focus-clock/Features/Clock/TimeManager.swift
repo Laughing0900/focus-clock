@@ -31,21 +31,6 @@ class TimeManager: ObservableObject {
     timer?.cancel()
   }
 
-  // Time formatting methods
-  func timeString(format24Hour: Bool, showSeconds: Bool) -> String {
-    let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "en_US_POSIX")
-    formatter.timeStyle = .none
-
-    if format24Hour {
-      formatter.dateFormat = showSeconds ? "HH:mm:ss" : "HH:mm"
-    } else {
-      formatter.dateFormat = showSeconds ? "hh:mm:ss" : "hh:mm"
-    }
-
-    return formatter.string(from: currentTime)
-  }
-
   func amPmString() -> String {
     let formatter = DateFormatter()
     formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -61,5 +46,21 @@ class TimeManager: ObservableObject {
     formatter.locale = Locale(identifier: "en_US_POSIX")
     formatter.dateFormat = "d MMM, yyyy EE"
     return formatter.string(from: currentTime)
+  }
+
+  func hourString(format24Hour: Bool) -> String {
+    let hour = Calendar.current.component(.hour, from: currentTime)
+    let displayHour = format24Hour ? hour : (hour % 12 == 0 ? 12 : hour % 12)
+    return String(format: "%02d", displayHour)
+  }
+
+  func minuteString() -> String {
+    let minute = Calendar.current.component(.minute, from: currentTime)
+    return String(format: "%02d", minute)
+  }
+
+  func secondString() -> String {
+    let second = Calendar.current.component(.second, from: currentTime)
+    return String(format: "%02d", second)
   }
 }

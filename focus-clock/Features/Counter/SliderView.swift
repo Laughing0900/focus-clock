@@ -30,41 +30,43 @@ struct SliderView: View {
                 }
                 .position(x: geo.size.width / 2, y: x)
             }
-        
-            Text("\(timerManager.formattedTimeRemaining)")
-                .foregroundColor(settings.textColor.opacity(0.7))
-                .font(
-                    .custom(
-                        settings.fontFamily,
-                        size: 36
+            if showMenuOption || timerManager.isRunning || timerManager.isPaused {
+                Text("\(timerManager.isRunning ? ":" : "")\(timerManager.formattedTimeRemaining)\(timerManager.isRunning ? ":" : "")")
+                    .foregroundColor(settings.textColor.opacity(0.7))
+                    .font(
+                        .custom(
+                            settings.fontFamily,
+                            size: 36
+                        )
                     )
-                )
-                .contentTransition(.numericText())
-                .sensoryFeedback(.selection, trigger: timerManager.formattedTimeRemaining)
-                .contentShape(Rectangle())
-                .padding(20)
-                .rotationEffect(.degrees(-90))
-                .position(x: geo.size.width - 18, y: geo.size.height / 2)
-                .onTapGesture {
-                    if timerManager.canStart {
-                        timerManager.startTimer()
-                    } else if timerManager.isRunning {
-                        timerManager.pauseTimer()
-                    } else if timerManager.isPaused {
-                        timerManager.resumeTimer()
+                    .contentTransition(.numericText())
+                    .sensoryFeedback(.selection, trigger: timerManager.formattedTimeRemaining)
+                    .contentShape(Rectangle())
+                    .padding(20)
+                    .rotationEffect(.degrees(-90))
+                    .position(x: geo.size.width - 18, y: geo.size.height / 2)
+                    .onTapGesture {
+                        if timerManager.canStart {
+                            timerManager.startTimer()
+                        } else if timerManager.isRunning {
+                            timerManager.pauseTimer()
+                        } else if timerManager.isPaused {
+                            timerManager.resumeTimer()
+                        }
                     }
-                }
-                .onLongPressGesture(minimumDuration: 1.0, maximumDistance: 50) {
-                    timerManager.resetTimer(Double(10) * 60)
-                    isLongPressing = false
-                } onPressingChanged: { pressing in
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        isLongPressing = pressing
+                    .onLongPressGesture(minimumDuration: 1.0, maximumDistance: 50) {
+                        timerManager.resetTimer(Double(10) * 60)
+                        isLongPressing = false
+                    } onPressingChanged: { pressing in
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            isLongPressing = pressing
+                        }
                     }
-                }
+            }
  
         }
         .contentShape(Rectangle())
+        .brightness(settings.brightness - 0.5)
         .gesture(
             DragGesture(minimumDistance: 0)
             .onChanged({ gesture in

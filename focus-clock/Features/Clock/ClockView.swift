@@ -12,21 +12,17 @@ struct ClockView: View {
   @ObservedObject var settings: UserSettings
 
   var body: some View {
-    ZStack {
-      // Main time display
-      VStack {
-        ClockDisplayView(
-          timeManager: timeManager,
-          settings: settings
-        )
-      }
+    // Main time display
+    ClockDisplayView(
+      timeManager: timeManager,
+      settings: settings
+    )
 
-      // Date display overlay
-      DateDisplayView(
-        timeManager: timeManager,
-        settings: settings
-      )
-    }
+    // Date display overlay
+    DateDisplayView(
+      timeManager: timeManager,
+      settings: settings
+    )
   }
 }
 

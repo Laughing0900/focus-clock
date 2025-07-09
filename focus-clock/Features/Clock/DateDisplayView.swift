@@ -14,11 +14,7 @@ struct DateDisplayView: View {
   var body: some View {
     if settings.showDate {
       GeometryReader { geometry in
-        VStack {
-          Spacer()
-          HStack {
-            Spacer()
-            Text(timeManager.dateString())
+        Text(timeManager.dateString())
               .font(
                 .custom(
                   settings.fontFamily,
@@ -28,11 +24,12 @@ struct DateDisplayView: View {
               )
               .foregroundColor(settings.textColor)
               .contentTransition(.numericText())
-            Spacer()
-          }
+          .position(
+            x: geometry.size.width / 2,
+            y: geometry.size.height
+          )
           .brightness(settings.brightness - 0.5)
         }
-      }
     }
   }
 }

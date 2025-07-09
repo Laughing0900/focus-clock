@@ -28,10 +28,7 @@ struct ContentView: View {
 
             // Menu button overlay
             if showMenuOption {
-                VStack {
-                    HStack {
-                        Spacer()  // Pushes menu button to right
-
+                 GeometryReader { geometry in
                         Button(action: {
                             withAnimation(.easeIn(duration: 0.15)) {
                                 showMenuView.toggle()
@@ -44,14 +41,11 @@ struct ContentView: View {
                         }
                         .buttonStyle(.plain)
                         .transition(.scale.combined(with: .opacity))
-                    }
-                    .padding(.top, 20)
-                    .padding(.trailing, 20)
-                    .brightness(settings.brightness - 0.5)
-
-                    Spacer()  // Pushes everything to top
+                        .position(x: geometry.size.width - 40, y: 20)
                 }
+                .brightness(settings.brightness - 0.5)
             }
+
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onTapGesture {
